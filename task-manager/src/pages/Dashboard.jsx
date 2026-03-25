@@ -1,20 +1,20 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, deleteTask } from '../redux/slices/taskSlice';
+import { logoutUser } from '../redux/slices/authSlice';
+import KanbanColumn from '../components/organisms/KanbanColumn';
 import TaskForm from '../components/organisms/TaskForm';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { items: tasks, status } = useSelector((state) => state.tasks);
+  const { items: tasks } = useSelector((state) => state.tasks);
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
 
   useEffect(() => {
-    if (user) {
-      dispatch(fetchTasks(user.uid));
-    }
+    if (user) dispatch(fetchTasks(user.uid));
   }, [dispatch, user]);
 
   const handleEdit = (task) => {
@@ -22,51 +22,66 @@ const Dashboard = () => {
     setIsFormOpen(true);
   };
 
-  const handleClose = () => {
-    setIsFormOpen(false);
-    setEditingTask(null);
-  };
-
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <header className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">My Tasks</h1>
-        <button 
-          onClick={() => setIsFormOpen(true)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-        >
-          + New Task
+    <div className="dashboard-layout">
+      {/* HEADER */}
+      <header className="container dashboard-header">
+        <h1 className="dashboard-title text-gradient">My Tasks</h1>
+        <button onClick={() => dispatch(logoutUser())} className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+          Sign Out
         </button>
       </header>
 
-      {isFormOpen && (
-        <div className="mb-8">
-          <TaskForm existingTask={editingTask} closeForm={handleClose} />
+      {/* QUICK ADD BAR */}
+      <div className="container">
+        <div className="action-bar">
+          <input 
+            type="text" 
+            placeholder="What needs to be done?" 
+            className="action-input"
+            onClick={() => { setEditingTask(null); setIsFormOpen(true); }}
+            readOnly
+          />
+          <button 
+            onClick={() => { setEditingTask(null); setIsFormOpen(true); }}
+            className="btn btn-primary action-btn"
+          >
+            Create Task
+          </button>
         </div>
-      )}
+      </div>
 
-      {status === 'loading' ? (
-        <p>Loading tasks...</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {tasks.map((task) => (
-            <div key={task.id} className="p-4 border rounded shadow-sm bg-white">
-              <div className="flex justify-between">
-                <h4 className="font-semibold text-lg">{task.title}</h4>
-                <span className={`text-xs px-2 py-1 rounded ${
-                  task.status === 'Done' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {task.status}
-                </span>
-              </div>
-              <p className="text-gray-600 mt-2">{task.description}</p>
-              <div className="flex gap-2 mt-4">
-                <button onClick={() => handleEdit(task)} className="text-blue-500 text-sm">Edit</button>
-                <button onClick={() => dispatch(deleteTask(task.id))} className="text-red-500 text-sm">Delete</button>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* KANBAN GRID */}
+      <div className="container kanban-grid">
+        <KanbanColumn 
+          title="To Do" 
+          status="Todo" 
+          dotClass="dot-todo" 
+          tasks={tasks.filter(t => t.status === 'Todo')} 
+          onEdit={handleEdit} 
+          onDelete={(id) => dispatch(deleteTask(id))} 
+        />
+        <KanbanColumn 
+          title="In Progress" 
+          status="In Progress" 
+          dotClass="dot-progress" 
+          tasks={tasks.filter(t => t.status === 'In Progress')} 
+          onEdit={handleEdit} 
+          onDelete={(id) => dispatch(deleteTask(id))} 
+        />
+        <KanbanColumn 
+          title="Done" 
+          status="Done" 
+          dotClass="dot-done" 
+          tasks={tasks.filter(t => t.status === 'Done')} 
+          onEdit={handleEdit} 
+          onDelete={(id) => dispatch(deleteTask(id))} 
+        />
+      </div>
+
+      {/* MODAL FORM */}
+      {isFormOpen && (
+        <TaskForm existingTask={editingTask} closeForm={() => setIsFormOpen(false)} />
       )}
     </div>
   );

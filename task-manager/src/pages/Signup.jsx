@@ -15,31 +15,50 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
-        <h2 className="text-center text-3xl font-extrabold text-gray-900">Create Account</h2>
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <input
-            type="email"
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-            placeholder="Email address"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            placeholder="Password"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button type="submit" className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md">
+    <div className="auth-wrapper">
+      <div className="auth-card glass-card">
+        <h2 className="auth-title text-gradient">Create Account</h2>
+        <p className="auth-subtitle">Start organizing your life today</p>
+        
+        {error && <div className="auth-error">{error}</div>}
+        
+        <form onSubmit={handleSubmit} style={{ marginTop: '32px' }}>
+          <div className="input-group">
+            <label className="input-label">Email Address</label>
+            <input
+              type="email"
+              required
+              className="input-field"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          
+          <div className="input-group" style={{ marginBottom: '32px' }}>
+            <label className="input-label">Password</label>
+            <input
+              type="password"
+              required
+              className="input-field"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="btn btn-primary"
+            style={{ width: '100%' }}
+          >
             {loading ? 'Creating account...' : 'Sign up'}
           </button>
         </form>
-        <p className="text-center text-sm">
-          Already have an account? <Link to="/login" className="text-indigo-600">Log in</Link>
+        
+        <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+          Already have an account? <Link to="/login" className="text-gradient" style={{ fontWeight: '600' }}>Log in</Link>
         </p>
       </div>
     </div>

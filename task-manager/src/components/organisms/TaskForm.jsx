@@ -24,68 +24,86 @@ const TaskForm = ({ existingTask, closeForm }) => {
   }, [existingTask]);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  console.log("1. Submit clicked");
+    e.preventDefault();
 
-  if (!user) {
-    console.error("No user found in Redux state!");
-    return;
-  }
+    if (!user) {
+      console.error("No user found in Redux state!");
+      return;
+    }
 
-  const taskData = {
-    title: formData.title,
-    description: formData.description,
-    status: formData.status,
-    userId: user.uid,
+    const taskData = {
+      title: formData.title,
+      description: formData.description,
+      status: formData.status,
+    };
+
+    try {
+      if (existingTask) {
+        await dispatch(updateTask({ id: existingTask.id, updates: taskData })).unwrap();
+      } else {
+        await dispatch(addTask({ ...taskData, userId: user.uid })).unwrap();
+      }
+      closeForm();
+    } catch (err) {
+      console.error("Failed to save task:", err);
+    }
   };
 
-  console.log("2. Sending data:", taskData);
-
-  try {
-    const result = await dispatch(addTask(taskData)).unwrap();
-    console.log("3. Success! Firebase ID:", result.id);
-    closeForm();
-  } catch (err) {
-    console.error("4. Failed to add task:", err);
-  }
-};
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4 border rounded-lg bg-white shadow">
-      <h3 className="text-xl font-bold">{existingTask ? 'Edit Task' : 'Create Task'}</h3>
-      
-      <input
-        type="text"
-        placeholder="Task Title"
-        className="p-2 border rounded"
-        value={formData.title}
-        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-        required
-      />
-      
-      <textarea
-        placeholder="Description"
-        className="p-2 border rounded"
-        value={formData.description}
-        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-      />
-      
-      <select
-        className="p-2 border rounded"
-        value={formData.status}
-        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-      >
-        <option value="Todo">Todo</option>
-        <option value="In Progress">In Progress</option>
-        <option value="Done">Done</option>
-      </select>
+    <div className="modal-overlay" onClick={(e) => { if(e.target === e.currentTarget) closeForm(); }}>
+      <div className="modal-content">
+        <h3 className="modal-header">{existingTask ? 'Edit Task' : 'Create Task'}</h3>
+        
+        <form onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label className="input-label">Task Title</label>
+            <input
+              type="text"
+              placeholder="E.g., Design homepage"
+              className="input-field"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              required
+              autoFocus
+            />
+          </div>
+          
+          <div className="input-group">
+            <label className="input-label">Description</label>
+            <textarea
+              placeholder="Add more details about this task..."
+              className="input-field form-textarea"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
+          </div>
+          
+          <div className="input-group">
+            <label className="input-label">Status</label>
+            <div style={{ position: 'relative' }}>
+              <select
+                className="input-field form-select"
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              >
+                <option value="Todo">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
+              </select>
+            </div>
+          </div>
 
-      <div className="flex justify-end gap-2">
-        <button type="button" onClick={closeForm} className="px-4 py-2 text-gray-500">Cancel</button>
-        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
-          {existingTask ? 'Update' : 'Save Task'}
-        </button>
+          <div className="modal-actions">
+            <button type="button" onClick={closeForm} className="btn btn-secondary">
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary">
+              {existingTask ? 'Update Task' : 'Create Task'}
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   );
 };
 

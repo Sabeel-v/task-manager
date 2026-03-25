@@ -15,27 +15,33 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
-        <h2 className="text-center text-3xl font-extrabold text-gray-900">Sign in</h2>
+    <div className="auth-wrapper">
+      <div className="auth-card glass-card">
+        <h2 className="auth-title">Welcome Back</h2>
+        <p className="auth-subtitle">Sign in to manage your tasks</p>
         
-        {error && <p className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</p>}
+        {error && <div className="auth-error">{error}</div>}
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+        <form onSubmit={handleSubmit} style={{ marginTop: '32px' }}>
+          <div className="input-group">
+            <label className="input-label">Email Address</label>
             <input
               type="email"
               required
-              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Email address"
+              className="input-field"
+              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
+          </div>
+          
+          <div className="input-group" style={{ marginBottom: '32px' }}>
+            <label className="input-label">Password</label>
             <input
               type="password"
               required
-              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Password"
+              className="input-field"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -44,14 +50,15 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="btn btn-primary"
+            style={{ width: '100%' }}
           >
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
         
-        <p className="text-center text-sm text-gray-600">
-          Don't have an account? <Link to="/signup" className="text-indigo-600 font-medium">Sign up</Link>
+        <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+          Don't have an account? <Link to="/signup" className="text-gradient" style={{ fontWeight: '600' }}>Sign up</Link>
         </p>
       </div>
     </div>
