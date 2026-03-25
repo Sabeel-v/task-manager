@@ -4,6 +4,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './services/firebase';
 import { setUser, setLoading } from './redux/slices/authSlice';
 import AppRoutes from './routes';
+import Toast from './components/organisms/Toast';
 
 function App() {
   const dispatch = useDispatch();
@@ -21,7 +22,12 @@ function App() {
     return () => unsubscribe();
   }, [dispatch]);
 
-  return <AppRoutes />;
+  return (
+    <>
+      <Toast />
+      <AppRoutes />
+    </>
+  );
 }
 
 export default App;

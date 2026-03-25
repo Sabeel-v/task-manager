@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addTask, updateTask } from '../../redux/slices/taskSlice';
+import { displayToast } from '../../redux/slices/uiSlice';
+import Input from '../atoms/Input';
+import Button from '../atoms/Button';
 
 const TaskForm = ({ existingTask, closeForm }) => {
   const dispatch = useDispatch();
@@ -27,7 +30,12 @@ const TaskForm = ({ existingTask, closeForm }) => {
     e.preventDefault();
 
     if (!user) {
-      console.error("No user found in Redux state!");
+      dispatch(displayToast('You must be logged in to create a task', 'error'));
+      return;
+    }
+
+    if (!formData.title.trim()) {
+      dispatch(displayToast('Task title is required', 'warning'));
       return;
     }
 
@@ -40,12 +48,15 @@ const TaskForm = ({ existingTask, closeForm }) => {
     try {
       if (existingTask) {
         await dispatch(updateTask({ id: existingTask.id, updates: taskData })).unwrap();
+        dispatch(displayToast('Task updated successfully!', 'success'));
       } else {
         await dispatch(addTask({ ...taskData, userId: user.uid })).unwrap();
+        dispatch(displayToast('Task created successfully!', 'success'));
       }
       closeForm();
     } catch (err) {
-      console.error("Failed to save task:", err);
+      dispatch(displayToast('Failed to save task', 'error'));
+      console.error(err);
     }
   };
 
@@ -55,18 +66,15 @@ const TaskForm = ({ existingTask, closeForm }) => {
         <h3 className="modal-header">{existingTask ? 'Edit Task' : 'Create Task'}</h3>
         
         <form onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label className="input-label">Task Title</label>
-            <input
-              type="text"
-              placeholder="E.g., Design homepage"
-              className="input-field"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
-              autoFocus
-            />
-          </div>
+          <Input
+            label="Task Title"
+            type="text"
+            placeholder="E.g., Design homepage"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            required
+            autoFocus
+          />
           
           <div className="input-group">
             <label className="input-label">Description</label>
@@ -94,12 +102,12 @@ const TaskForm = ({ existingTask, closeForm }) => {
           </div>
 
           <div className="modal-actions">
-            <button type="button" onClick={closeForm} className="btn btn-secondary">
+            <Button type="button" variant="secondary" onClick={closeForm}>
               Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
+            </Button>
+            <Button type="submit" variant="primary">
               {existingTask ? 'Update Task' : 'Create Task'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

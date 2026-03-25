@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTasks, deleteTask } from '../redux/slices/taskSlice';
 import { logoutUser } from '../redux/slices/authSlice';
+import { displayToast } from '../redux/slices/uiSlice';
+import DashboardLayout from '../components/templates/DashboardLayout';
 import KanbanColumn from '../components/organisms/KanbanColumn';
 import TaskForm from '../components/organisms/TaskForm';
+import Button from '../components/atoms/Button';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -12,6 +15,7 @@ const Dashboard = () => {
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (user) dispatch(fetchTasks(user.uid));
@@ -22,32 +26,41 @@ const Dashboard = () => {
     setIsFormOpen(true);
   };
 
-  return (
-    <div className="dashboard-layout">
-      {/* HEADER */}
-      <header className="container dashboard-header">
-        <h1 className="dashboard-title text-gradient">My Tasks</h1>
-        <button onClick={() => dispatch(logoutUser())} className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
-          Sign Out
-        </button>
-      </header>
+  const handleDelete = async (id) => {
+    try {
+      await dispatch(deleteTask(id)).unwrap();
+      dispatch(displayToast('Task deleted successfully', 'success'));
+    } catch (err) {
+      dispatch(displayToast('Failed to delete task', 'error'));
+    }
+  };
 
-      {/* QUICK ADD BAR */}
+  const filteredTasks = tasks.filter(t => 
+    t.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    t.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <DashboardLayout 
+      headerTitle="My Tasks" 
+      onSignOut={() => dispatch(logoutUser())}
+    >
+      {/* QUICK ADD / SEARCH BAR */}
       <div className="container">
-        <div className="action-bar">
+        <div className="action-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
           <input 
             type="text" 
-            placeholder="What needs to be done?" 
+            placeholder="Search tasks..." 
             className="action-input"
-            onClick={() => { setEditingTask(null); setIsFormOpen(true); }}
-            readOnly
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button 
+          <Button 
             onClick={() => { setEditingTask(null); setIsFormOpen(true); }}
-            className="btn btn-primary action-btn"
+            className="action-btn"
           >
             Create Task
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -57,33 +70,36 @@ const Dashboard = () => {
           title="To Do" 
           status="Todo" 
           dotClass="dot-todo" 
-          tasks={tasks.filter(t => t.status === 'Todo')} 
+          tasks={filteredTasks.filter(t => t.status === 'Todo')} 
           onEdit={handleEdit} 
-          onDelete={(id) => dispatch(deleteTask(id))} 
+          onDelete={handleDelete} 
         />
         <KanbanColumn 
           title="In Progress" 
           status="In Progress" 
           dotClass="dot-progress" 
-          tasks={tasks.filter(t => t.status === 'In Progress')} 
+          tasks={filteredTasks.filter(t => t.status === 'In Progress')} 
           onEdit={handleEdit} 
-          onDelete={(id) => dispatch(deleteTask(id))} 
+          onDelete={handleDelete} 
         />
         <KanbanColumn 
           title="Done" 
           status="Done" 
           dotClass="dot-done" 
-          tasks={tasks.filter(t => t.status === 'Done')} 
+          tasks={filteredTasks.filter(t => t.status === 'Done')} 
           onEdit={handleEdit} 
-          onDelete={(id) => dispatch(deleteTask(id))} 
+          onDelete={handleDelete} 
         />
       </div>
 
       {/* MODAL FORM */}
       {isFormOpen && (
-        <TaskForm existingTask={editingTask} closeForm={() => setIsFormOpen(false)} />
+        <TaskForm 
+          existingTask={editingTask} 
+          closeForm={() => setIsFormOpen(false)} 
+        />
       )}
-    </div>
+    </DashboardLayout>
   );
 };
 

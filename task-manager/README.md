@@ -1,16 +1,57 @@
-# React + Vite
+# Task Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A stunning, simple, and secure task management application featuring a glassmorphic UI, modern Vanilla CSS, Atomic Design architecture, and Firebase integration.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Authentication**: Email/password signup and login using Firebase Auth.
+- **Task Management**: Create, read, update, and delete tasks with Firebase Firestore.
+- **Task Sorting/Organization**: Kanban-style board ("To Do", "In Progress", "Done").
+- **Search & Filter**: Find tasks instantly using the dashboard search bar.
+- **Toasts**: Beautiful animated toast notifications for user actions.
+- **Security**: Strict Firebase Security Rules (`firestore.rules`) block cross-user data access.
+- **Protected Routing**: Authenticated users only.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend Framework**: React (Vite)
+- **State Management**: Redux Toolkit (Slices + Async Thunks)
+- **Styling**: Vanilla CSS Variables, Glassmorphism, CSS Grid/Flexbox
+- **Backend/Database**: Firebase v9 Modular SDK (Auth & Firestore)
+- **Architecture**: Atomic Design (`atoms`, `molecules`, `organisms`, `templates`)
 
-## Expanding the ESLint configuration
+## Setup Instructions
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. **Clone the repository** (if pushed to GitHub):
+   ```bash
+   git clone <repository_url>
+   cd task-manager
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Firebase Configuration**:
+   The app uses a configuration located in `src/services/firebase.js`. To use your own Firebase project:
+   - Create a Firebase project at console.firebase.google.com.
+   - Enable Authentication (Email/Password) and Firestore Database.
+   - Deploy the provided `firestore.rules`.
+   - Update `src/services/firebase.js` with your explicit config keys.
+
+4. **Run the Development Server**:
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:5173` in your browser.
+
+## Security Rules Deployment
+
+To deploy the provided security rules to your own Firebase project:
+```bash
+npm install -g firebase-tools
+firebase login
+firebase init firestore
+firebase deploy --only firestore:rules
+```
